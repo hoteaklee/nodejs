@@ -71,15 +71,49 @@ async function main() {
         for (let apt of apts){
             console.log(await apt.getAttribute('textContent')) ;
         }
-        await sleep(3000);
+        await sleep(1500);
 
         for (let addr of aptaddrs){
             console.log(await addr.getAttribute('textContent'));
         }
+        await chrome.sleep(1500);
+
+
+        // 아이파크 삼성동 항목을 찾아 인덱스값 추출
+        let idx = 0;
+        for (let val of apts){
+            console.log(`${idx++} ${await val.getAttribute('textContent')}`);
+            if (await val.getAttribute('textContent') == apt) break;
+        }
+
+        // 추출한 인덱스값을 이용해서 항목 직접 클릭
+        nenu = await chrome.findElement(By.css(`.mCSB_container ul li:nth-child(${idx})`));
+        await chrome.actions().move({origin: nenu}).click().perform();
+
+       // await chrome.executeScript('arguments[0].click();', apts[--idx]);
+        await chrome.sleep(1500);
+
+        //---------------------------------
+        // 관리시설 정보 클릭
+        await chrome.wait(until.elementLocated(By.css('.lnbNav li:nth-child(3) a')), 5000);
+
+        nenu = await chrome.findElement(By.css('.lnbNav li:nth-child(3) a'));
+        await chrome.actions().move({origin: nenu}).click().perform();
+        await sleep(1000);
+
+
+        //지상/지하 주자장 대수 추출
+        let pcnt = await chrome.findElement(By.css('#kaptd_pcnt')).getText();
+        let pcntu = await chrome.findElement(By.css('#kaptd_pcntu')).getText();
+        let tpcnt = await chrome.findElement(By.css('#kaptd_total_pcnt')).getText();
+
+        console.log(pcnt, pcntu, tpcnt);
+        await sleep(5000);
 
 
 
-        await chrome.sleep(3000);
+
+
 
 
     } catch (ex){
